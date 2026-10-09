@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section-heading">
+  <div><h1>{{ title }}</h1><p>{{ videos|length }} {% if videos|length == 1 %}film{% else %}filmów{% endif %}</p></div>
+  {% if view != 'library' and view != 'subscriptions' %}
+  <div class="sort-controls"><a class="chip {% if sort != 'popular' %}selected{% endif %}" href="{{ url_for('index', q=search_query) if search_query else url_for('index') }}">Najnowsze</a><a class="chip {% if sort == 'popular' %}selected{% endif %}" href="{{ url_for('index', sort='popular', q=search_query) }}">Popularne</a></div>
+  {% endif %}
+</section>
+{% if videos %}
+<section class="video-grid">
+{% for item in videos %}{% set video = item.video %}
+  <article class="video-card">
+    <a class="video-link" href="{{ url_for('watch', video_id=video.id) }}" aria-label="Oglądaj {{ video.title }}">
+      <div class="thumbnail" data-thumbnail-src="{{ item.media_url }}"><div class="thumb-placeholder"><span>▶</span></div><span class="video-duration"></span></div>
+    </a>
+    <div class="video-info"><a class="channel-avatar" href="{{ url_for('channel', username=video.owner.username) }}">{{ video.owner.initials }}</a>
+      <div class="video-text"><a class="video-title" href="{{ url_for('watch', video_id=video.id) }}">{{ video.title }}</a>
+        <div class="video-meta">{{ video.views }} wyświetleń · {{ video.like_count }} polubień</div>
+        <div class="video-owner"><a href="{{ url_for('channel', username=video.owner.username) }}">{{ video.owner.display_name }} · @{{ video.owner.username }}</a></div>
+        {% if video.description %}<p class="video-description">{{ video.description }}</p>{% endif %}
+      </div>
+    </div>
+  </article>
+{% endfor %}
+</section>
+{% else %}
+<section class="welcome-panel"><div class="welcome-icon">▶</div><p class="eyebrow">TWOJA WŁASNA PLATFORMA WIDEO</p>
+  <h1>{% if search_query %}Nic nie znaleziono{% elif view == 'subscriptions' %}Brak nowych filmów{% elif view == 'library' %}Twoja biblioteka jest pusta{% else %}Witaj w U-TOOB 5.0{% endif %}</h1>
+  <p>{% if search_query %}Spróbuj innej frazy wyszukiwania.{% elif view == 'subscriptions' %}Subskrybuj kanały, aby zobaczyć tu ich filmy.{% elif view == 'library' %}Prześlij pierwszy film na swój kanał.{% else %}Załóż konto, utwórz kanał i dołącz do społeczności.{% endif %}</p>
+  {% if current_user.is_authenticated %}<a class="primary-button" href="{{ url_for('upload') }}">＋ Prześlij film</a>{% else %}<a class="primary-button" href="{{ url_for('register') }}">Utwórz konto</a>{% endif %}
+</section>
+<section class="empty-library"><div class="empty-symbol">▧</div><h2>Filmy pojawią się tutaj</h2><p>U-TOOB 5.0 to Twoja własna platforma wideo.</p></section>
+{% endif %}
+{% endblock %}

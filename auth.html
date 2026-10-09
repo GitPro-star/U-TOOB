@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="auth-page">
+  <div class="auth-brand"><span class="brand-mark">▶</span></div>
+  <h1>{% if mode == 'register' %}Utwórz konto{% else %}Zaloguj się{% endif %}</h1>
+  <p class="auth-lead">{% if mode == 'register' %}Utwórz profil i własny kanał U-TOOB.{% else %}Zaloguj się, aby przejść do swojego kanału.{% endif %}</p>
+  <form class="auth-form" method="post" action="{{ url_for('register' if mode == 'register' else 'login') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="username">Nazwa użytkownika</label><input id="username" name="username" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]+" autocomplete="username" placeholder="np. AstroFan">
+    {% if mode == 'register' %}<p class="field-hint">3–24 znaki: litery angielskie, cyfry i podkreślenie.</p>
+    <label for="display_name">Nazwa wyświetlana</label><input id="display_name" name="display_name" required maxlength="40" placeholder="Jak mamy Cię wyświetlać?">{% endif %}
+    <label for="password">Hasło</label><input id="password" name="password" type="password" required {% if mode == 'register' %}minlength="8" autocomplete="new-password"{% else %}autocomplete="current-password"{% endif %} maxlength="128" placeholder="{% if mode == 'register' %}Minimum 8 znaków{% else %}Twoje hasło{% endif %}">
+    {% if mode == 'register' %}<label for="password_confirm">Powtórz hasło</label><input id="password_confirm" name="password_confirm" type="password" required minlength="8" maxlength="128" autocomplete="new-password" placeholder="Wpisz hasło ponownie">{% endif %}
+    <button class="primary-button full-button" type="submit">{% if mode == 'register' %}Utwórz konto{% else %}Zaloguj się{% endif %}</button>
+  </form>
+  <p class="auth-switch">{% if mode == 'register' %}Masz już konto? <a href="{{ url_for('login') }}">Zaloguj się</a>{% else %}Nie masz konta? <a href="{{ url_for('register') }}">Utwórz je</a>{% endif %}</p>
+  <p class="privacy-note">Hasła są przechowywane jako bezpieczne skróty. Nie zapisujemy ich w postaci jawnego tekstu.</p>
+</section>
+{% endblock %}

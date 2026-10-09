@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="upload-page"><div class="page-eyebrow">TWÓJ KANAŁ</div><h1>Prześlij film</h1><p class="page-lead">Opublikuj nowy film na swoim kanale.</p>
+  <form class="upload-form" action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="title">Tytuł filmu <span>*</span></label><input id="title" name="title" maxlength="200" required placeholder="Nadaj filmowi tytuł">
+    <label for="description">Opis <small>(opcjonalnie)</small></label><textarea id="description" name="description" maxlength="10000" rows="5" placeholder="O czym jest ten film?"></textarea>
+    <label for="video">Plik wideo <span>*</span></label><div class="file-drop"><div class="file-icon">⇧</div><strong>Wybierz film z komputera</strong><span>MP4, WebM, MOV, MKV i inne formaty</span><input id="video" name="video" type="file" accept="video/*,.mkv,.avi" required></div>
+    <p class="form-hint">Limit pliku: 512 MB. W wersji internetowej trwałe przechowywanie wymaga skonfigurowania magazynu R2 albo płatnego dysku trwałego.</p>
+    <button class="primary-button" type="submit">Opublikuj film</button>
+  </form>
+</section>
+{% endblock %}

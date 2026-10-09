@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="channel-banner">
+  <div class="channel-avatar large-avatar">{{ person.initials }}</div>
+  <div class="channel-details"><h1>{{ person.display_name }}</h1><div class="channel-handle">@{{ person.username }}</div>
+    <div class="channel-stats">{{ person.subscriber_count }} subskrybentów · {{ videos|length }} filmów · Konto od {{ person.created_at.strftime('%d.%m.%Y') }}</div>
+    <p>{{ person.bio or 'Witaj na moim kanale U-TOOB!' }}</p>
+  </div>
+  {% if current_user.is_authenticated and current_user.id == person.id %}<a class="primary-button channel-edit" href="{{ url_for('account') }}">Edytuj profil</a>
+  {% elif current_user.is_authenticated %}<form method="post" action="{{ url_for('subscribe', user_id=person.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="primary-button channel-edit {% if subscribed %}button-dark{% endif %}" type="submit">{% if subscribed %}Subskrybujesz ✓{% else %}Subskrybuj{% endif %}</button></form>
+  {% else %}<a class="primary-button channel-edit" href="{{ url_for('login') }}">Zaloguj się, aby subskrybować</a>{% endif %}
+</section>
+<section class="channel-videos"><div class="section-heading"><div><h2>Filmy</h2><p>Filmy opublikowane na tym kanale</p></div></div>
+  {% if videos %}<div class="video-grid">{% for item in videos %}{% set video = item.video %}
+    <article class="video-card"><a class="video-link" href="{{ url_for('watch', video_id=video.id) }}"><div class="thumbnail" data-thumbnail-src="{{ item.media_url }}"><div class="thumb-placeholder"><span>▶</span></div><span class="video-duration"></span></div></a>
+      <div class="video-info"><div class="channel-avatar">{{ person.initials }}</div><div class="video-text"><a class="video-title" href="{{ url_for('watch', video_id=video.id) }}">{{ video.title }}</a><div class="video-meta">{{ video.views }} wyświetleń · {{ video.like_count }} polubień</div><div class="video-owner">{{ video.uploaded_at.strftime('%d.%m.%Y') }}</div></div></div>
+    </article>{% endfor %}</div>
+  {% else %}<div class="empty-library"><div class="empty-symbol">▧</div><h2>Ten kanał nie ma jeszcze filmów</h2><p>Gdy twórca opublikuje film, pojawi się tutaj.</p></div>{% endif %}
+</section>
+{% endblock %}

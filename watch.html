@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="watch-layout"><section class="watch-main">
+  <div class="player-wrap">{% if media_url %}<video class="video-player" controls autoplay playsinline preload="metadata"><source src="{{ media_url }}">Twoja przeglądarka nie obsługuje tego formatu wideo.</video>{% else %}<div class="media-error">Nie można teraz odtworzyć pliku. Sprawdź ustawienia magazynu wideo.</div>{% endif %}</div>
+  <h1 class="watch-title">{{ video.title }}</h1><div class="watch-meta"><span>{{ video.views }} wyświetleń</span><span>·</span><span>{{ video.uploaded_at.strftime('%d.%m.%Y') }}</span></div>
+  <div class="video-owner watch-owner">Kanał: <a href="{{ url_for('channel', username=video.owner.username) }}">{{ video.owner.display_name }} · @{{ video.owner.username }}</a></div>
+  <div class="watch-actions"><form method="post" action="{{ url_for('like', video_id=video.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="action-pill {% if liked %}active{% endif %}" type="submit">{% if liked %}♥{% else %}♡{% endif %} {{ video.like_count }} polubień</button></form><a class="action-pill" href="{{ url_for('channel', username=video.owner.username) }}">Zobacz kanał</a></div>
+  <div class="watch-description">{{ video.description or 'Brak opisu.' }}</div>
+  <section class="comments" id="comments"><h2>Komentarze ({{ video.comment_count }})</h2>
+    {% if current_user.is_authenticated %}<form class="comment-form" method="post" action="{{ url_for('comment', video_id=video.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><textarea name="body" maxlength="2000" required rows="3" placeholder="Dodaj komentarz..."></textarea><button class="primary-button" type="submit">Skomentuj</button></form>
+    {% else %}<p class="muted">Aby komentować, <a href="{{ url_for('login') }}">zaloguj się</a>.</p>{% endif %}
+    {% for comment in comments %}<article class="comment"><div class="avatar comment-avatar">{{ comment.author.initials }}</div><div class="comment-body"><div class="comment-heading"><a href="{{ url_for('channel', username=comment.author.username) }}">{{ comment.author.display_name }} · @{{ comment.author.username }}</a><span>{{ comment.created_at.strftime('%d.%m.%Y %H:%M') }}</span></div><p>{{ comment.body }}</p></div></article>
+    {% else %}<p class="muted">Nie ma jeszcze komentarzy. Rozpocznij rozmowę!</p>{% endfor %}
+  </section>
+</section><aside class="related"><h2>Oglądaj również</h2>{% if related %}<div class="video-grid">{% for item in related %}{% set rel = item.video %}<article class="video-card"><a class="video-link" href="{{ url_for('watch', video_id=rel.id) }}"><div class="thumbnail" data-thumbnail-src="{{ item.media_url }}"><div class="thumb-placeholder"><span>▶</span></div><span class="video-duration"></span></div></a><div class="video-info"><div class="video-text"><a class="video-title" href="{{ url_for('watch', video_id=rel.id) }}">{{ rel.title }}</a><div class="video-meta">{{ rel.views }} wyświetleń</div><div class="video-owner"><a href="{{ url_for('channel', username=rel.owner.username) }}">{{ rel.owner.display_name }}</a></div></div></div></article>{% endfor %}</div>{% else %}<p class="muted">Na razie to jedyny film.</p>{% endif %}</aside></div>
+{% endblock %}

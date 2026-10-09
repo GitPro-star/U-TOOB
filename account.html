@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="account-page">
+  <div class="page-eyebrow">USTAWIENIA</div><h1>Twoje konto</h1><p class="page-lead">Zarządzaj swoim profilem i kanałem.</p>
+  <div class="account-card"><div class="avatar settings-avatar">{{ current_user.initials }}</div><div><h2>{{ current_user.display_name }}</h2><p>@{{ current_user.username }}</p><a href="{{ url_for('channel', username=current_user.username) }}">Zobacz swój kanał →</a></div></div>
+  <form class="settings-form" method="post" action="{{ url_for('account') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><h2>Profil</h2>
+    <label for="display_name">Nazwa wyświetlana</label><input id="display_name" name="display_name" maxlength="40" required value="{{ current_user.display_name }}">
+    <label for="bio">Opis kanału</label><textarea id="bio" name="bio" maxlength="1000" rows="4" placeholder="Opowiedz coś o swoim kanale">{{ current_user.bio }}</textarea>
+    <button class="primary-button" type="submit">Zapisz zmiany</button>
+  </form>
+  <div class="settings-form"><h2>Informacje o koncie</h2><p>Nazwa użytkownika: <strong>@{{ current_user.username }}</strong></p><p>Liczba subskrybentów: <strong>{{ current_user.subscriber_count }}</strong></p><p>Hasło jest przechowywane w postaci skrótu kryptograficznego.</p></div>
+</section>
+{% endblock %}

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <title>{{ title }} — U-TOOB 5.0</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+<header class="topbar">
+  <button class="mobile-menu" id="menuToggle" aria-label="Pokaż menu">☰</button>
+  <a class="brand" href="{{ url_for('index') }}" aria-label="U-TOOB strona główna"><span class="brand-mark">▶</span><span>U-TOOB</span><sup>5</sup></a>
+  <form class="search-form" action="{{ url_for('index') }}" method="get" role="search">
+    <input type="search" name="q" placeholder="Szukaj filmów" value="{{ search_query|default('') }}" aria-label="Szukaj filmów">
+    <button type="submit" aria-label="Szukaj">⌕</button>
+  </form>
+  <div class="top-actions">
+    {% if current_user.is_authenticated %}
+      <a class="upload-top" href="{{ url_for('upload') }}">＋ <span>Prześlij</span></a>
+      <a class="account-pill" href="{{ url_for('channel', username=current_user.username) }}"><span class="avatar small-avatar">{{ current_user.initials }}</span><span class="account-name">{{ current_user.display_name }}</span></a>
+      <form action="{{ url_for('logout') }}" method="post" class="logout-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="logout-button">Wyloguj</button></form>
+    {% else %}
+      <a class="login-link" href="{{ url_for('login') }}">Zaloguj się</a>
+      <a class="register-link" href="{{ url_for('register') }}">Utwórz konto</a>
+    {% endif %}
+  </div>
+</header>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar">
+    <nav>
+      <a class="nav-item {% if request.endpoint == 'index' and request.args.get('view') != 'subscriptions' %}active{% endif %}" href="{{ url_for('index') }}"><span class="nav-icon">⌂</span><span>Strona główna</span></a>
+      <a class="nav-item {% if request.args.get('sort') == 'popular' %}active{% endif %}" href="{{ url_for('index', sort='popular') }}"><span class="nav-icon">↗</span><span>Popularne</span></a>
+      {% if current_user.is_authenticated %}
+        <a class="nav-item {% if request.args.get('view') == 'subscriptions' %}active{% endif %}" href="{{ url_for('index', view='subscriptions') }}"><span class="nav-icon">▤</span><span>Subskrypcje</span></a>
+        <a class="nav-item {% if request.args.get('view') == 'library' %}active{% endif %}" href="{{ url_for('index', view='library') }}"><span class="nav-icon">▣</span><span>Moje filmy</span></a>
+        <a class="nav-item {% if request.endpoint == 'account' %}active{% endif %}" href="{{ url_for('account') }}"><span class="nav-icon">⚙</span><span>Ustawienia</span></a>
+      {% endif %}
+    </nav>
+    <div class="sidebar-note"><div class="sidebar-note-icon">●</div><strong>Twoja platforma wideo</strong><p>Konta, kanały i filmy U-TOOB.</p></div>
+    <div class="sidebar-footer">U-TOOB 5.0<br><span>Wersja sieciowa</span></div>
+  </aside>
+  <main class="main-content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}<div class="flash-stack">{% for category, message in messages %}<div class="notice {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+    <footer class="site-footer">U-TOOB 5.0 · Twoja własna platforma wideo</footer>
+  </main>
+</div>
+</body>
+</html>
