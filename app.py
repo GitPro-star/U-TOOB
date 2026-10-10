@@ -473,6 +473,44 @@ def healthz():
     return {"status": "ok", "app": "U-TOOB", "version": "5.0"}
 
 
+@app.route("/robots.txt")
+def robots_txt():
+    content = """User-agent: *
+Allow: /
+
+Sitemap: https://u-toob.onrender.com/sitemap.xml
+"""
+    return content, 200, {"Content-Type": "text/plain; charset=utf-8"}
+
+
+@app.route("/sitemap.xml")
+def sitemap_xml():
+    from xml.sax.saxutils import escape
+
+    base_url = "https://u-toob.onrender.com"
+    entries = [f"  <url><loc>{base_url}/</loc></url>"]
+
+    for user in User.query.order_by(User.username.asc()).all():
+        loc = escape(f"{base_url}/channel/{user.username}")
+        entries.append(f"  <url><loc>{loc}</loc></url>")
+
+    for video in Video.query.order_by(Video.uploaded_at.desc()).all():
+        loc = escape(f"{base_url}/watch/{video.id}")
+        lastmod = ""
+        if video.uploaded_at:
+            lastmod = (
+                f"<lastmod>{video.uploaded_at.date().isoformat()}</lastmod>"
+            )
+        entries.append(f"  <url><loc>{loc}</loc>{lastmod}</url>")
+
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + "\n".join(entries)
+        + "\n</urlset>\n"
+    )
+    return xml, 200, {"Content-Type": "application/xml; charset=utf-8"}
+
 @app.errorhandler(413)
 def too_large(_error):
     flash("Plik jest większy niż limit 512 MB.", "error")
